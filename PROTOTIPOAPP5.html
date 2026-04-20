@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dyntu – Tu profe de dinero 💸</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #8B1A2F;
+    --green-dark: #6b1224;
+    --green-light: #f5d0d8;
+    --blue: #A81F35;
+    --blue-dark: #6b1224;
+    --yellow: #C8102E;
+    --yellow-dark: #a00d25;
+    --red: #CC2233;
+    --purple: #7a1728;
+    --orange: #A81F35;
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --text: #2a2a2a;
+    --text-light: #777;
+    --border: #e0e0e0;
+    --navbar-h: 72px;
+    --upaep-red: #C8102E;
+    --upaep-wine: #8B1A2F;
+    --upaep-dark: #6b1224;
+    --upaep-gray: #58595B;
+    --upaep-light: #f5d0d8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
+  .app-shell { width: 100%; max-width: 390px; min-height: 100vh; background: var(--bg); position: relative; padding-bottom: calc(var(--navbar-h) + 16px); }
+  .auth-shell { width: 100%; max-width: 390px; min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
+  .auth-screen { display: none; flex-direction: column; min-height: 100vh; }
+  .auth-screen.active { display: flex; }
+  .landing-hero { flex: 1; background: linear-gradient(160deg, #8B1A2F 0%, #C8102E 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .landing-hero::before { content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,0.08); top: -80px; right: -80px; }
+  .landing-hero::after { content: ''; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.06); bottom: -40px; left: -60px; }
+  .landing-mascot { font-size: 88px; margin-bottom: 16px; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15)); animation: float 3s ease-in-out infinite; position: relative; z-index: 1; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  .landing-title { font-family: 'Fredoka One', sans-serif; font-size: 42px; color: white; letter-spacing: 1px; margin-bottom: 8px; position: relative; z-index: 1; }
+  .landing-tagline { font-size: 16px; color: rgba(255,255,255,0.9); font-weight: 700; line-height: 1.5; position: relative; z-index: 1; }
+  .landing-pills { display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+  .landing-pill { background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: white; border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 800; backdrop-filter: blur(4px); }
+  .landing-actions { background: white; padding: 28px 24px 40px; border-radius: 28px 28px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.08); }
+  .landing-actions h3 { font-family: 'Fredoka One', sans-serif; font-size: 20px; text-align: center; margin-bottom: 20px; color: var(--text); }
+  .onboarding-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; justify-content: center; align-items: flex-end; max-width: 390px; margin: 0 auto; left: 50%; transform: translateX(-50%); }
+  .onboarding-overlay.show { display: flex; }
+  .onboarding-card { background: white; border-radius: 28px 28px 0 0; padding: 28px 24px 36px; width: 100%; animation: slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  .onboarding-steps { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+  .onboarding-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+  .onboarding-dot.active { background: var(--upaep-wine); width: 24px; border-radius: 4px; }
+  .onboarding-emoji { font-size: 52px; text-align: center; display: block; margin-bottom: 12px; }
+  .onboarding-title { font-family: 'Fredoka One', sans-serif; font-size: 22px; text-align: center; color: var(--text); margin-bottom: 8px; }
+  .onboarding-desc { font-size: 14px; color: var(--text-light); font-weight: 600; text-align: center; line-height: 1.6; margin-bottom: 24px; }
+  .onboarding-actions { display: flex; gap: 10px; }
+  .btn-skip { padding: 14px 20px; border-radius: 14px; background: var(--bg); color: var(--text-light); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; border: 2px solid var(--border); cursor: pointer; flex-shrink: 0; }
+  .btn-next-tour { flex: 1; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 4px 0 #6b1224; transition: all 0.1s; }
+  .btn-next-tour:active { transform: translateY(2px); box-shadow: 0 2px 0 #6b1224; }
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 400; justify-content: center; align-items: center; max-width: 390px; margin: 0 auto; left: 50%; transform: translateX(-50%); padding: 24px; }
+  .confirm-overlay.show { display: flex; }
+  .confirm-card { background: white; border-radius: 24px; padding: 28px 24px; width: 100%; text-align: center; animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .confirm-emoji { font-size: 44px; display: block; margin-bottom: 10px; }
+  .confirm-title { font-family: 'Fredoka One', sans-serif; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .confirm-msg { font-size: 14px; color: var(--text-light); font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .btn-confirm-cancel { flex: 1; padding: 14px; border-radius: 14px; background: var(--bg); color: var(--text); font-family: 'Fredoka One', sans-serif; font-size: 16px; border: 2px solid var(--border); cursor: pointer; transition: all 0.15s; }
+  .btn-confirm-cancel:hover { background: #eee; }
+  .btn-confirm-exit { flex: 1; padding: 14px; border-radius: 14px; background: var(--red); color: white; font-family: 'Fredoka One', sans-serif; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 4px 0 #991a27; transition: all 0.1s; }
+  .btn-confirm-exit:active { transform: translateY(2px); box-shadow: 0 2px 0 #991a27; }
+  .btn-primary { width: 100%; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 18px; letter-spacing: 0.5px; border: none; cursor: pointer; box-shadow: 0 5px 0 #6b1224; transition: all 0.1s; margin-bottom: 12px; }
+  .btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 #6b1224; }
+  .btn-secondary { width: 100%; padding: 16px; border-radius: 16px; background: white; color: var(--blue); font-family: 'Fredoka One', sans-serif; font-size: 18px; border: 2.5px solid var(--blue); cursor: pointer; transition: all 0.15s; }
+  .btn-secondary:hover { background: #fdeaec; }
+  .btn-secondary:active { transform: scale(0.98); }
+  .form-screen-header { background: white; padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--border); }
+  .form-back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--bg); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; transition: transform 0.1s; }
+  .form-back-btn:active { transform: scale(0.9); }
+  .form-screen-title { font-family: 'Fredoka One', sans-serif; font-size: 20px; color: var(--text); }
+  .form-body { flex: 1; padding: 28px 24px; display: flex; flex-direction: column; }
+  .form-icon { font-size: 52px; text-align: center; margin-bottom: 16px; }
+  .form-title { font-family: 'Fredoka One', sans-serif; font-size: 24px; text-align: center; margin-bottom: 6px; }
+  .form-subtitle { font-size: 14px; color: var(--text-light); font-weight: 600; text-align: center; margin-bottom: 28px; line-height: 1.5; }
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin-bottom: 6px; display: block; }
+  .input-wrap { position: relative; }
+  .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+  .form-input { width: 100%; padding: 14px 14px 14px 44px; border-radius: 14px; border: 2.5px solid var(--border); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); background: white; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .form-input:focus { border-color: #C8102E; box-shadow: 0 0 0 3px rgba(200,16,46,0.12); }
+  .form-input.error { border-color: #CC2233; }
+  .form-input.success { border-color: var(--upaep-wine); }
+  .input-error { font-size: 12px; color: var(--red); font-weight: 700; margin-top: 5px; display: none; padding-left: 4px; }
+  .input-error.show { display: block; }
+  .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; background: none; border: none; padding: 0; line-height: 1; }
+  .form-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+  .form-divider::before, .form-divider::after { content: ''; flex: 1; height: 2px; background: var(--border); border-radius: 1px; }
+  .form-divider span { font-size: 12px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .btn-google { width: 100%; padding: 14px; border-radius: 14px; background: white; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; border: 2.5px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.15s; }
+  .btn-google:hover { background: #f8f8f8; border-color: #ccc; }
+  .form-footer { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; color: var(--text-light); }
+  .form-link { color: var(--blue); cursor: pointer; font-weight: 900; text-decoration: none; background: none; border: none; font-family: inherit; font-size: inherit; padding: 0; }
+  .form-link:hover { text-decoration: underline; }
+  .form-submit-btn { width: 100%; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 18px; border: none; cursor: pointer; box-shadow: 0 5px 0 #6b1224; transition: all 0.1s; margin-top: 8px; }
+  .form-submit-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #6b1224; }
+  .form-submit-btn:disabled { background: #ccc; box-shadow: 0 5px 0 #aaa; cursor: not-allowed; }
+  .form-submit-btn.green-btn { background: linear-gradient(135deg, #8B1A2F, #C8102E); box-shadow: 0 5px 0 #6b1224; }
+  .form-submit-btn.green-btn:active { box-shadow: 0 2px 0 #6b1224; }
+  .password-strength { margin-top: 6px; display: none; }
+  .password-strength.show { display: block; }
+  .strength-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; margin-bottom: 4px; }
+  .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+  .strength-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  .header { background: var(--card); padding: 16px 20px 12px; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .logo { font-family: 'Fredoka One', sans-serif; font-size: 24px; color: var(--upaep-wine); letter-spacing: 1px; }
+  .xp-badge { display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #C8102E, #8B1A2F); color: white; font-weight: 800; font-size: 14px; padding: 6px 14px; border-radius: 20px; box-shadow: 0 3px 0 rgba(107,18,36,0.3); }
+  .streak-badge { display: flex; align-items: center; gap: 4px; background: #fdf0f2; color: var(--upaep-wine); font-weight: 800; font-size: 14px; padding: 6px 12px; border-radius: 20px; border: 2px solid var(--upaep-wine); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .progress-bar { background: var(--border); border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #8B1A2F, #C8102E); transition: width 0.5s ease; position: relative; }
+  .progress-fill::after { content: ''; position: absolute; right: -4px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; background: #8B1A2F; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+  .screen { display: none; padding: 20px; }
+  .screen.active { display: block; }
+  .welcome-banner { background: linear-gradient(135deg, #8B1A2F, #C8102E); border-radius: 20px; padding: 24px 20px; color: white; margin-bottom: 24px; position: relative; overflow: hidden; }
+  .welcome-banner::before { content: '💸'; position: absolute; right: 16px; top: 12px; font-size: 52px; opacity: 0.3; }
+  .welcome-banner h2 { font-size: 20px; font-weight: 900; margin-bottom: 6px; font-family: 'Fredoka One', sans-serif; letter-spacing: 0.5px; }
+  .welcome-banner p { font-size: 13px; opacity: 0.9; font-weight: 600; }
+  .section-title { font-family: 'Fredoka One', sans-serif; font-size: 18px; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .lesson-path { display: flex; flex-direction: column; gap: 16px; }
+  .lesson-node { display: flex; align-items: center; gap: 16px; cursor: pointer; position: relative; }
+  .lesson-node::before { content: ''; position: absolute; left: 32px; top: 64px; width: 3px; height: 28px; background: var(--border); border-radius: 2px; }
+  .lesson-node:last-child::before { display: none; }
+  .lesson-icon { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; border: 3px solid transparent; transition: transform 0.15s, box-shadow 0.15s; position: relative; }
+  .lesson-icon.done { background: linear-gradient(135deg, var(--green-light), #f5d0d8); border-color: var(--upaep-wine); box-shadow: 0 4px 0 #6b1224; }
+  .lesson-icon.active { background: linear-gradient(135deg, #f5d0d8, var(--yellow)); border-color: var(--yellow-dark); box-shadow: 0 4px 0 #6b1224; animation: pulse 2s infinite; }
+  .lesson-icon.locked { background: #eee; border-color: #ccc; box-shadow: 0 4px 0 #bbb; filter: grayscale(1) opacity(0.5); }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .lesson-node:active .lesson-icon { transform: scale(0.95); }
+  .lesson-info { flex: 1; }
+  .lesson-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+  .lesson-sub { font-size: 12px; color: var(--text-light); font-weight: 600; }
+  .lesson-status { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+  .status-done { background: #f5d0d8; color: #6b1224; }
+  .status-active { background: #f5d0d8; color: #8B1A2F; }
+  .status-locked { background: #eee; color: #aaa; }
+  .lesson-icon.done::after { content: '✓'; position: absolute; bottom: -6px; right: -6px; background: #8B1A2F; color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
+  .lesson-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .back-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; transition: transform 0.1s; }
+  .back-btn:active { transform: scale(0.9); }
+  .lesson-progress-bar { flex: 1; background: var(--border); border-radius: 10px; height: 10px; overflow: hidden; }
+  .lesson-progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #C8102E, #8B1A2F); transition: width 0.4s; }
+  .lesson-xp-counter { font-size: 13px; font-weight: 800; color: var(--upaep-wine); white-space: nowrap; }
+  .lesson-card { background: var(--card); border-radius: 24px; padding: 24px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 2px solid var(--border); margin-bottom: 16px; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .lesson-emoji { font-size: 48px; display: block; text-align: center; margin-bottom: 12px; }
+  .lesson-card-title { font-family: 'Fredoka One', sans-serif; font-size: 22px; text-align: center; color: var(--text); margin-bottom: 14px; line-height: 1.2; }
+  .content-block { border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; font-size: 15px; line-height: 1.7; font-weight: 600; }
+  .block-explain { background: #f8f8f8; border-left: 4px solid var(--upaep-gray); }
+  .block-example { background: #fdf5f0; border-left: 4px solid var(--upaep-red); }
+  .block-tip { background: #fdf0f2; border-left: 4px solid var(--upaep-wine); }
+  .block-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 6px; }
+
+  /* ── VIDEO YOUTUBE EMBED ── */
+  .video-embed-wrap {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    position: relative;
+    background: #000;
+    border: 2px solid var(--border);
+  }
+  .video-embed-label {
+    background: var(--upaep-wine);
+    color: white;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 4px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .video-embed-label span { opacity: 0.8; font-weight: 700; font-size: 11px; text-transform: none; letter-spacing: 0; }
+  .video-iframe-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+  }
+  .video-iframe-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .quiz-section { margin-top: 4px; }
+  .quiz-question { font-weight: 800; font-size: 15px; margin-bottom: 12px; color: var(--text); }
+  .quiz-options { display: grid; gap: 10px; }
+  .quiz-option { background: var(--card); border: 2.5px solid var(--border); border-radius: 14px; padding: 14px 16px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: left; display: flex; align-items: center; gap: 10px; }
+  .quiz-option-letter { width: 28px; height: 28px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; flex-shrink: 0; transition: all 0.15s; }
+  .quiz-option:hover { border-color: #C8102E; background: #fdeaec; }
+  .quiz-option.selected { border-color: #C8102E; background: #fdeaec; }
+  .quiz-option.selected .quiz-option-letter { background: var(--blue); color: white; }
+  .quiz-option.correct { border-color: #2a7a2a; background: #f0fdf0; }
+  .quiz-option.correct .quiz-option-letter { background: #2a7a2a; color: white; }
+  .quiz-option.wrong { border-color: #CC2233; background: #fff0f0; }
+  .quiz-option.wrong .quiz-option-letter { background: var(--red); color: white; }
+  .quiz-option.disabled { pointer-events: none; }
+  .quiz-feedback { display: none; border-radius: 14px; padding: 14px 16px; margin-top: 12px; font-size: 14px; font-weight: 700; align-items: center; gap: 10px; }
+  .quiz-feedback.show { display: flex; animation: slideIn 0.2s ease; }
+  .quiz-feedback.success { background: #f0fdf0; color: #1a5c1a; }
+  .quiz-feedback.error { background: #fdeaec; color: #8B1A2F; }
+  .feedback-icon { font-size: 24px; }
+  .expert-ref { background: #fdf0f2; border-radius: 12px; padding: 10px 14px; font-size: 11px; color: #8B1A2F; font-weight: 700; margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+  .btn-complete { width: 100%; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 18px; letter-spacing: 0.5px; border: none; cursor: pointer; box-shadow: 0 5px 0 #6b1224; transition: all 0.1s; margin-top: 4px; }
+  .btn-complete:active { transform: translateY(3px); box-shadow: 0 2px 0 #6b1224; }
+  .btn-complete:disabled { background: #ccc; box-shadow: 0 5px 0 #aaa; cursor: not-allowed; }
+  .congrats-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: flex-end; max-width: 390px; margin: 0 auto; left: 50%; transform: translateX(-50%); }
+  .congrats-overlay.show { display: flex; }
+  .congrats-card { background: white; border-radius: 28px 28px 0 0; padding: 32px 24px 40px; width: 100%; text-align: center; animation: slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .congrats-emoji { font-size: 64px; display: block; margin-bottom: 8px; }
+  .congrats-title { font-family: 'Fredoka One', sans-serif; font-size: 28px; color: var(--upaep-wine); margin-bottom: 8px; }
+  .congrats-msg { font-size: 15px; color: var(--text-light); font-weight: 600; margin-bottom: 20px; }
+  .xp-earned { background: linear-gradient(135deg, #C8102E, #8B1A2F); color: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; font-weight: 900; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .reward-canje { background: linear-gradient(135deg, #fff8e1, #fff3cd); border: 2px solid #f0c040; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.15s; }
+  .reward-canje:active { transform: scale(0.98); }
+  .reward-canje-icon { font-size: 28px; flex-shrink: 0; }
+  .reward-canje-text { flex: 1; }
+  .reward-canje-title { font-weight: 900; font-size: 14px; color: #7a5c00; margin-bottom: 2px; }
+  .reward-canje-desc { font-size: 12px; color: #a07a10; font-weight: 600; }
+  .reward-canje-arrow { font-size: 18px; color: #c09010; }
+  .btn-continue { width: 100%; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 18px; border: none; cursor: pointer; box-shadow: 0 5px 0 #6b1224; transition: all 0.1s; }
+  .btn-continue:active { transform: translateY(3px); box-shadow: 0 2px 0 #6b1224; }
+  .motivational { background: linear-gradient(135deg, #58595B, #8B1A2F); color: white; border-radius: 16px; padding: 12px 16px; font-weight: 800; font-size: 13px; margin-bottom: 16px; text-align: center; animation: slideIn 0.3s ease; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border-radius: 18px; padding: 20px 16px; border: 2px solid var(--border); text-align: center; }
+  .stat-icon { font-size: 32px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Fredoka One', sans-serif; font-size: 28px; color: var(--text); line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text-light); font-weight: 700; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .achievement-list { display: flex; flex-direction: column; gap: 10px; }
+  .achievement { background: var(--card); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; border: 2px solid var(--border); }
+  .achievement.earned { border-color: var(--upaep-red); background: #fdf5f6; }
+  .achievement-icon { font-size: 32px; }
+  .achievement-name { font-weight: 800; font-size: 14px; }
+  .achievement-desc { font-size: 12px; color: var(--text-light); font-weight: 600; }
+  .achievement-badge { margin-left: auto; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+  .earned-badge { background: #f5d0d8; color: #8B1A2F; }
+  .locked-badge { background: #eee; color: #aaa; }
+  .canjeable-badge { background: #fff3cd; color: #7a5c00; border: 1.5px solid #f0c040; }
+  .reminder-card { background: var(--card); border-radius: 18px; padding: 18px; border: 2px solid var(--border); margin-bottom: 12px; }
+  .reminder-card-title { font-family: 'Fredoka One', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .reminder-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .reminder-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .reminder-check { width: 22px; height: 22px; border-radius: 6px; border: 2.5px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.15s; font-size: 13px; }
+  .reminder-check.active { background: var(--upaep-wine); border-color: var(--upaep-wine); color: white; }
+  .reminder-text { flex: 1; }
+  .reminder-name { font-weight: 800; font-size: 14px; }
+  .reminder-date { font-size: 12px; color: var(--text-light); font-weight: 600; }
+  .reminder-amount { font-weight: 900; font-size: 14px; color: var(--upaep-wine); }
+  .btn-add-reminder { width: 100%; padding: 12px; border-radius: 12px; background: var(--bg); border: 2px dashed var(--border); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; color: var(--text-light); cursor: pointer; margin-top: 10px; transition: all 0.15s; }
+  .btn-add-reminder:hover { border-color: var(--upaep-wine); color: var(--upaep-wine); background: #fdf0f2; }
+  .info-banner { background: linear-gradient(135deg, #8B1A2F, #58595B); border-radius: 20px; padding: 24px 20px; color: white; margin-bottom: 20px; }
+  .info-banner h2 { font-family: 'Fredoka One', sans-serif; font-size: 20px; margin-bottom: 6px; }
+  .info-banner p { font-size: 13px; opacity: 0.9; font-weight: 600; }
+  .expert-contact-cta { background: linear-gradient(135deg, #fdf0f2, #f5d0d8); border: 2px solid var(--upaep-wine); border-radius: 16px; padding: 16px 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.15s; }
+  .expert-contact-cta:active { transform: scale(0.98); }
+  .expert-contact-cta-icon { font-size: 32px; flex-shrink: 0; }
+  .expert-contact-cta-text { flex: 1; }
+  .expert-contact-cta-title { font-weight: 900; font-size: 14px; color: var(--upaep-wine); margin-bottom: 2px; }
+  .expert-contact-cta-desc { font-size: 12px; color: #8B1A2F; font-weight: 600; }
+  .expert-card { background: var(--card); border-radius: 18px; padding: 18px; border: 2px solid var(--border); margin-bottom: 12px; display: flex; gap: 14px; align-items: flex-start; }
+  .expert-avatar { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .expert-name { font-weight: 900; font-size: 14px; margin-bottom: 2px; }
+  .expert-role { font-size: 11px; color: var(--text-light); font-weight: 700; margin-bottom: 6px; }
+  .expert-quote { font-size: 13px; font-weight: 600; line-height: 1.5; color: var(--text); }
+  .oecd-card { background: linear-gradient(135deg, #fdeaec, #f5d0d8); border-radius: 18px; padding: 18px; border: 2px solid #C8102E; margin-bottom: 12px; }
+  .oecd-card h3 { font-weight: 900; font-size: 15px; margin-bottom: 6px; color: #8B1A2F; display: flex; align-items: center; gap: 8px; }
+  .oecd-card p { font-size: 13px; color: #6b1224; font-weight: 600; line-height: 1.5; }
+  .disclaimer { background: #f8f8f8; border-radius: 14px; padding: 14px; font-size: 12px; color: var(--text-light); font-weight: 600; line-height: 1.5; border: 2px solid var(--border); margin-top: 4px; }
+  .profile-hero { background: linear-gradient(160deg, #8B1A2F 0%, #C8102E 100%); border-radius: 24px; padding: 28px 20px 24px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .profile-hero::before { content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.07); top: -50px; right: -50px; }
+  .profile-hero::after { content: ''; position: absolute; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.05); bottom: -30px; left: -30px; }
+  .profile-avatar-wrap { position: relative; display: inline-block; margin-bottom: 14px; cursor: pointer; z-index: 1; }
+  .profile-avatar { width: 88px; height: 88px; border-radius: 28px; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 44px; transition: transform 0.15s; backdrop-filter: blur(4px); }
+  .profile-avatar:active { transform: scale(0.95); }
+  .profile-avatar-edit { position: absolute; bottom: -6px; right: -6px; width: 26px; height: 26px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .profile-name-display { font-family: 'Fredoka One', sans-serif; font-size: 22px; color: white; margin-bottom: 4px; position: relative; z-index: 1; }
+  .profile-email-display { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: 600; margin-bottom: 14px; position: relative; z-index: 1; }
+  .profile-rank-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35); border-radius: 20px; padding: 8px 16px; backdrop-filter: blur(4px); position: relative; z-index: 1; }
+  .profile-rank-emoji { font-size: 18px; }
+  .profile-rank-label { font-size: 13px; font-weight: 900; color: white; letter-spacing: 0.3px; }
+  .profile-rank-sub { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 700; }
+  .profile-xp-bar-wrap { margin-top: 14px; position: relative; z-index: 1; }
+  .profile-xp-bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 6px; }
+  .profile-xp-bar { background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px; overflow: hidden; }
+  .profile-xp-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.6), white); transition: width 0.6s ease; }
+  .profile-mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .profile-mini-stat { background: var(--card); border-radius: 16px; padding: 14px 10px; border: 2px solid var(--border); text-align: center; }
+  .profile-mini-stat-icon { font-size: 24px; margin-bottom: 4px; }
+  .profile-mini-stat-val { font-family: 'Fredoka One', sans-serif; font-size: 20px; color: var(--upaep-wine); line-height: 1; }
+  .profile-mini-stat-lbl { font-size: 10px; color: var(--text-light); font-weight: 700; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .profile-edit-card { background: var(--card); border-radius: 20px; padding: 20px; border: 2px solid var(--border); margin-bottom: 16px; }
+  .profile-edit-title { font-family: 'Fredoka One', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .profile-input-wrap { position: relative; margin-bottom: 14px; }
+  .profile-input-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin-bottom: 6px; display: block; }
+  .profile-input { width: 100%; padding: 12px 12px 12px 42px; border-radius: 12px; border: 2px solid var(--border); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .profile-input:focus { border-color: #C8102E; box-shadow: 0 0 0 3px rgba(200,16,46,0.1); background: white; }
+  .profile-input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; margin-top: 10px; }
+  .btn-save-profile { width: 100%; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #8B1A2F, #C8102E); color: white; font-family: 'Fredoka One', sans-serif; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 4px 0 #6b1224; transition: all 0.1s; }
+  .btn-save-profile:active { transform: translateY(2px); box-shadow: 0 2px 0 #6b1224; }
+  .avatar-picker-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 450; justify-content: center; align-items: flex-end; max-width: 390px; margin: 0 auto; left: 50%; transform: translateX(-50%); }
+  .avatar-picker-overlay.show { display: flex; }
+  .avatar-picker-card { background: white; border-radius: 28px 28px 0 0; padding: 24px 20px 36px; width: 100%; animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+  .avatar-picker-title { font-family: 'Fredoka One', sans-serif; font-size: 18px; text-align: center; margin-bottom: 16px; color: var(--text); }
+  .avatar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+  .avatar-option { width: 100%; aspect-ratio: 1; border-radius: 14px; background: var(--bg); border: 2.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; transition: all 0.15s; }
+  .avatar-option:hover { border-color: var(--upaep-wine); background: #fdf0f2; transform: scale(1.05); }
+  .avatar-option.selected { border-color: var(--upaep-wine); background: #f5d0d8; }
+  .btn-close-picker { width: 100%; padding: 13px; border-radius: 13px; background: var(--bg); border: 2px solid var(--border); font-family: 'Fredoka One', sans-serif; font-size: 15px; color: var(--text-light); cursor: pointer; }
+  .profile-ranks-card { background: var(--card); border-radius: 20px; padding: 18px 20px; border: 2px solid var(--border); margin-bottom: 16px; }
+  .profile-ranks-title { font-family: 'Fredoka One', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .rank-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .rank-row-emoji { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
+  .rank-row-info { flex: 1; }
+  .rank-row-name { font-weight: 800; font-size: 13px; }
+  .rank-row-req { font-size: 11px; color: var(--text-light); font-weight: 600; }
+  .rank-row-badge { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+  .rank-current { background: #f5d0d8; color: #8B1A2F; }
+  .rank-locked-tag { background: #eee; color: #aaa; }
+  .rank-done-tag { background: #e8f5e9; color: #2a7a2a; }
+  .navbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; height: var(--navbar-h); background: var(--card); border-top: 2px solid var(--border); display: flex; z-index: 100; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: none; background: transparent; font-family: 'Nunito', sans-serif; transition: all 0.15s; padding: 8px 0; }
+  .nav-icon { font-size: 22px; }
+  .nav-label { font-size: 10px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .nav-item.active .nav-label { color: var(--upaep-wine); }
+  .nav-item.active .nav-icon { filter: drop-shadow(0 2px 4px rgba(200,16,46,0.3)); transform: scale(1.1); }
+  .nav-indicator { width: 4px; height: 4px; border-radius: 2px; background: #8B1A2F; opacity: 0; }
+  .nav-item.active .nav-indicator { opacity: 1; }
+  .nav-item.nav-exit .nav-label { color: #CC2233; }
+  .nav-item.nav-exit .nav-icon { opacity: 0.7; }
+  .confetti-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 300; overflow: hidden; display: none; }
+  .confetti-container.show { display: block; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: confettiFall 1.5s ease-in forwards; }
+  @keyframes confettiFall { from { transform: translateY(-20px) rotate(0deg); opacity: 1; } to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  .auth-toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); background: var(--red); color: white; padding: 12px 20px; border-radius: 14px; font-weight: 800; font-size: 14px; z-index: 500; max-width: 340px; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 4px 20px rgba(200,16,46,0.4); }
+  .auth-toast.success-toast { background: #8B1A2F; }
+  .auth-toast.show { transform: translateX(-50%) translateY(0); }
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="auth-shell" id="auth-shell">
+  <div class="auth-screen active" id="auth-landing">
+    <div class="landing-hero">
+      <div class="landing-mascot">💸</div>
+      <div class="landing-title" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+        <svg width="160" height="45" viewBox="0 0 130.7 37" xmlns="http://www.w3.org/2000/svg"><rect fill="rgba(255,255,255,0.95)" width="130.7" height="37" rx="6"/><rect x="37.7" y="3.3" fill="#878E94" width="89.4" height="30.3"/><rect x="3.8" y="3.3" fill="#E10023" width="30.8" height="30.3"/><path fill="#fff" d="M111.5,18.3v-4.5h2.2c1.6,0,2.5,0.8,2.5,2.3c0,1.4-0.8,2.3-2.5,2.3H111.5z M111.5,22.2h2.4c4.4,0,6.9-2.6,6.9-6.1s-2.5-6.2-6.9-6.2h-7.1v17.2h4.7V22.2z M91.8,27.1h12.6v-3.9h-7.9v-3h6.4v-3.7h-6.4v-2.9h7.6V9.9H91.8V27.1z M81.6,18.1l1.6,3.6h-3.2L81.6,18.1z M85.6,27.1h4.8L81.9,9.7c-0.1-0.2-0.2-0.2-0.3,0l-8.5,17.5h4.6l0.9-2.1h6.1L85.6,27.1z M66.4,18.3v-4.5h2.2c1.5,0,2.5,0.8,2.5,2.3c0,1.4-0.8,2.3-2.5,2.3H66.4z M66.4,22.2h2.4c4.4,0,6.9-2.6,6.9-6.1S73.2,10,68.8,10h-7.1v17.2h4.7V22.2z M51.7,27.3c4.4,0,7.6-2.3,7.6-6.9V9.9h-4.7v10.5c0,2-0.9,3.1-2.9,3.1c-2,0-2.9-1.1-2.9-3.1V9.9h-4.7v10.6C44.1,25.1,47.3,27.3,51.7,27.3"/><path fill="#fff" d="M22.8,20.9c0,2.3-1.1,3.6-3.6,3.6s-3.6-1.3-3.6-3.6V8h-2.6v12.8c0,3.8,2.5,5.8,6.2,5.8s6.2-2,6.2-5.8V8l-2.6,2.6V20.9z M28.5,21V8h-2.6v12.8c0,4.2-2.7,6.3-6.7,6.3s-6.7-2.1-6.7-6.3V8l0,0L10,10.6V21c0,5.7,3.9,8.4,9.2,8.4C24.6,29.4,28.5,26.6,28.5,21"/></svg>
+        <span style="font-size:28px;font-weight:900;color:white;letter-spacing:1px">× Dyntu 💸</span>
+      </div>
+      <div class="landing-tagline">Tu profe de dinero personal.<br>Aprende finanzas en 5 minutos al día.</div>
+      <div class="landing-pills">
+        <span class="landing-pill">🎮 Gamificado</span>
+        <span class="landing-pill">⚡ Lecciones rápidas</span>
+        <span class="landing-pill">🏆 Logros y XP</span>
+      </div>
+    </div>
+    <div class="landing-actions">
+      <h3>¡Empieza gratis ahora!</h3>
+      <button class="btn-primary" onclick="showAuthScreen('auth-register')">🚀 Crear cuenta gratis</button>
+      <button class="btn-secondary" onclick="showAuthScreen('auth-login')">Ya tengo cuenta — Entrar</button>
+    </div>
+  </div>
+
+  <div class="auth-screen" id="auth-register">
+    <div class="form-screen-header">
+      <div class="form-back-btn" onclick="showAuthScreen('auth-landing')">←</div>
+      <div class="form-screen-title">Crear cuenta</div>
+    </div>
+    <div class="form-body">
+      <div class="form-icon">🎓</div>
+      <div class="form-title">¡Únete a Dyntu!</div>
+      <div class="form-subtitle">Crea tu cuenta gratis y empieza a aprender sobre dinero hoy.</div>
+      <div class="input-group">
+        <label class="input-label">Tu nombre</label>
+        <div class="input-wrap"><span class="input-icon">👤</span><input type="text" class="form-input" id="reg-name" placeholder="Ej: Carlos" oninput="validateRegField('reg-name')"></div>
+        <div class="input-error" id="reg-name-error">Ingresa tu nombre</div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Correo electrónico</label>
+        <div class="input-wrap"><span class="input-icon">📧</span><input type="email" class="form-input" id="reg-email" placeholder="tucorreo@ejemplo.com" oninput="validateRegField('reg-email')"></div>
+        <div class="input-error" id="reg-email-error">Ingresa un correo válido</div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Contraseña</label>
+        <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres" oninput="checkPasswordStrength()"><button class="toggle-password" type="button" onclick="togglePass('reg-password', this)">👁️</button></div>
+        <div class="password-strength" id="pass-strength"><div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div><div class="strength-label" id="strength-label"></div></div>
+        <div class="input-error" id="reg-password-error">Mínimo 6 caracteres</div>
+      </div>
+      <button class="form-submit-btn green-btn" onclick="handleRegister()">¡Crear mi cuenta! 🚀</button>
+      <div class="form-divider"><span>o</span></div>
+      <button class="btn-google" onclick="handleGoogleMock()"><span>🌐</span> Continuar con Google</button>
+      <div class="form-footer">¿Ya tienes cuenta? <button class="form-link" onclick="showAuthScreen('auth-login')">Inicia sesión</button></div>
+    </div>
+  </div>
+
+  <div class="auth-screen" id="auth-login">
+    <div class="form-screen-header">
+      <div class="form-back-btn" onclick="showAuthScreen('auth-landing')">←</div>
+      <div class="form-screen-title">Iniciar sesión</div>
+    </div>
+    <div class="form-body">
+      <div class="form-icon">👋</div>
+      <div class="form-title">¡Bienvenido de vuelta!</div>
+      <div class="form-subtitle">Sigue aprendiendo sobre finanzas donde lo dejaste.</div>
+      <div class="input-group">
+        <label class="input-label">Correo electrónico</label>
+        <div class="input-wrap"><span class="input-icon">📧</span><input type="email" class="form-input" id="login-email" placeholder="tucorreo@ejemplo.com"></div>
+        <div class="input-error" id="login-email-error">Correo o contraseña incorrectos</div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Contraseña</label>
+        <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" class="form-input" id="login-password" placeholder="Tu contraseña"><button class="toggle-password" type="button" onclick="togglePass('login-password', this)">👁️</button></div>
+        <div class="input-error" id="login-password-error">Correo o contraseña incorrectos</div>
+      </div>
+      <div style="text-align:right;margin-top:-4px;margin-bottom:16px"><button class="form-link" onclick="showToast('📨 Se envió un correo de recuperación (demo)', true)" style="font-size:13px">¿Olvidaste tu contraseña?</button></div>
+      <button class="form-submit-btn" onclick="handleLogin()">Entrar →</button>
+      <div class="form-divider"><span>o</span></div>
+      <button class="btn-google" onclick="handleGoogleMock()"><span>🌐</span> Continuar con Google</button>
+      <div class="form-footer">¿No tienes cuenta? <button class="form-link" onclick="showAuthScreen('auth-register')">Regístrate gratis</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="app-shell" style="display:none">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo" style="display:flex;align-items:center;gap:10px">
+        <svg width="88" height="25" viewBox="0 0 130.7 37" xmlns="http://www.w3.org/2000/svg"><rect fill="#fff" width="130.7" height="37"/><rect x="37.7" y="3.3" fill="#878E94" width="89.4" height="30.3"/><rect x="3.8" y="3.3" fill="#E10023" width="30.8" height="30.3"/><path fill="#fff" d="M111.5,18.3v-4.5h2.2c1.6,0,2.5,0.8,2.5,2.3c0,1.4-0.8,2.3-2.5,2.3H111.5z M111.5,22.2h2.4c4.4,0,6.9-2.6,6.9-6.1s-2.5-6.2-6.9-6.2h-7.1v17.2h4.7V22.2z M91.8,27.1h12.6v-3.9h-7.9v-3h6.4v-3.7h-6.4v-2.9h7.6V9.9H91.8V27.1z M81.6,18.1l1.6,3.6h-3.2L81.6,18.1z M85.6,27.1h4.8L81.9,9.7c-0.1-0.2-0.2-0.2-0.3,0l-8.5,17.5h4.6l0.9-2.1h6.1L85.6,27.1z M66.4,18.3v-4.5h2.2c1.5,0,2.5,0.8,2.5,2.3c0,1.4-0.8,2.3-2.5,2.3H66.4z M66.4,22.2h2.4c4.4,0,6.9-2.6,6.9-6.1S73.2,10,68.8,10h-7.1v17.2h4.7V22.2z M51.7,27.3c4.4,0,7.6-2.3,7.6-6.9V9.9h-4.7v10.5c0,2-0.9,3.1-2.9,3.1c-2,0-2.9-1.1-2.9-3.1V9.9h-4.7v10.6C44.1,25.1,47.3,27.3,51.7,27.3"/><path fill="#fff" d="M22.8,20.9c0,2.3-1.1,3.6-3.6,3.6s-3.6-1.3-3.6-3.6V8h-2.6v12.8c0,3.8,2.5,5.8,6.2,5.8s6.2-2,6.2-5.8V8l-2.6,2.6V20.9z M28.5,21V8h-2.6v12.8c0,4.2-2.7,6.3-6.7,6.3s-6.7-2.1-6.7-6.3V8l0,0L10,10.6V21c0,5.7,3.9,8.4,9.2,8.4C24.6,29.4,28.5,26.6,28.5,21"/></svg>
+        <span style="font-family:'Fredoka One',sans-serif;font-size:17px;color:#8B1A2F;letter-spacing:0.5px;font-weight:400">× Dyntu 💸</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div class="streak-badge">🔥 <span id="streak-count">3</span></div>
+        <div class="xp-badge">⚡ <span id="xp-total">120</span> XP</div>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-label"><span>Tu progreso</span><span id="prog-text">2 / 7 lecciones</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="main-progress" style="width:28%"></div></div>
+    </div>
+  </div>
+
+  <div class="screen active" id="screen-home">
+    <div style="height:16px"></div>
+    <div class="welcome-banner">
+      <h2 id="welcome-name">¡Hola, futuro rico! 👋</h2>
+      <p>Aprende a manejar tu dinero en mini-lecciones.<br>5 minutos al día cambian todo.</p>
+    </div>
+    <div class="section-title">📚 Ruta de aprendizaje</div>
+    <div class="lesson-path">
+      <div class="lesson-node" onclick="openLesson(0)"><div class="lesson-icon done">💰</div><div class="lesson-info"><div class="lesson-title">¿A dónde se va mi dinero?</div><div class="lesson-sub">Qué es un presupuesto</div></div><div class="lesson-status status-done">✓ Listo</div></div>
+      <div class="lesson-node" onclick="openLesson(1)"><div class="lesson-icon done">🛍️</div><div class="lesson-info"><div class="lesson-title">¿Lo necesito o lo quiero?</div><div class="lesson-sub">Necesidad vs. deseo</div></div><div class="lesson-status status-done">✓ Listo</div></div>
+      <div class="lesson-node" onclick="openLesson(2)"><div class="lesson-icon active">🐜</div><div class="lesson-info"><div class="lesson-title">El ladrón invisible</div><div class="lesson-sub">Gasto hormiga</div></div><div class="lesson-status status-active">▶ Siguiente</div></div>
+      <div class="lesson-node" onclick="openLesson(3)"><div class="lesson-icon locked">🐷</div><div class="lesson-info"><div class="lesson-title">El súperpoder del ahorro</div><div class="lesson-sub">Ahorro constante</div></div><div class="lesson-status status-locked">🔒</div></div>
+      <div class="lesson-node" onclick="openLesson(4)"><div class="lesson-icon locked">🛡️</div><div class="lesson-info"><div class="lesson-title">Tu red de seguridad</div><div class="lesson-sub">Fondo de emergencia</div></div><div class="lesson-status status-locked">🔒</div></div>
+      <div class="lesson-node" onclick="openLesson(5)"><div class="lesson-icon locked">🛒</div><div class="lesson-info"><div class="lesson-title">"Solo por hoy" te cuesta caro</div><div class="lesson-sub">Gastos impulsivos</div></div><div class="lesson-status status-locked">🔒</div></div>
+      <div class="lesson-node" onclick="openLesson(6)"><div class="lesson-icon locked">⚖️</div><div class="lesson-info"><div class="lesson-title">La regla mágica 50/30/20</div><div class="lesson-sub">Tu fórmula de dinero</div></div><div class="lesson-status status-locked">🔒</div></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div class="screen" id="screen-lesson">
+    <div class="lesson-header">
+      <div class="back-btn" onclick="goHome()">←</div>
+      <div class="lesson-progress-bar"><div class="lesson-progress-fill" id="lesson-prog" style="width:0%"></div></div>
+      <div class="lesson-xp-counter">+<span id="lesson-xp">0</span> XP</div>
+    </div>
+    <div id="lesson-content"></div>
+  </div>
+
+  <div class="screen" id="screen-stats">
+    <div style="height:8px"></div>
+    <div class="section-title">📊 Mis estadísticas</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="stat-xp">120</div><div class="stat-label">XP Total</div></div>
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="stat-streak">3</div><div class="stat-label">Racha días</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="stat-done">2</div><div class="stat-label">Lecciones</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="stat-pct">28%</div><div class="stat-label">Completado</div></div>
+    </div>
+    <div class="section-title">🔔 Recordatorios de pago</div>
+    <div class="reminder-card">
+      <div class="reminder-card-title">📋 Mis pagos del mes</div>
+      <div class="reminder-item"><div class="reminder-check active" id="rem-0" onclick="toggleReminder(0)">✓</div><div class="reminder-text"><div class="reminder-name">Renta / Colegiatura</div><div class="reminder-date">Vence: 5 de cada mes</div></div><div class="reminder-amount">💰</div></div>
+      <div class="reminder-item"><div class="reminder-check" id="rem-1" onclick="toggleReminder(1)"></div><div class="reminder-text"><div class="reminder-name">Internet / WiFi</div><div class="reminder-date">Vence: 15 de cada mes</div></div><div class="reminder-amount">📶</div></div>
+      <div class="reminder-item"><div class="reminder-check" id="rem-2" onclick="toggleReminder(2)"></div><div class="reminder-text"><div class="reminder-name">Servicios (luz, agua)</div><div class="reminder-date">Vence: 20 de cada mes</div></div><div class="reminder-amount">⚡</div></div>
+      <button class="btn-add-reminder" onclick="showToast('➕ Función de agregar recordatorio próximamente', true)">+ Agregar recordatorio</button>
+    </div>
+    <div class="section-title">🏆 Logros</div>
+    <div class="achievement-list">
+      <div class="achievement earned"><div class="achievement-icon">🚀</div><div><div class="achievement-name">Primer paso</div><div class="achievement-desc">Completaste tu primera lección</div></div><span class="achievement-badge earned-badge">Ganado</span></div>
+      <div class="achievement earned"><div class="achievement-icon">🔥</div><div><div class="achievement-name">En racha</div><div class="achievement-desc">3 días seguidos aprendiendo</div></div><span class="achievement-badge canjeable-badge" onclick="showToast('🎁 ¡Canje próximamente disponible!', true)" style="cursor:pointer">🎁 Canjear</span></div>
+      <div class="achievement"><div class="achievement-icon">💸</div><div><div class="achievement-name">Maestro del ahorro</div><div class="achievement-desc">Completa 5 lecciones</div></div><span class="achievement-badge locked-badge">🔒</span></div>
+      <div class="achievement"><div class="achievement-icon">🏆</div><div><div class="achievement-name">Graduado Dyntu</div><div class="achievement-desc">Completa todas las lecciones</div></div><span class="achievement-badge locked-badge">🔒</span></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div class="screen" id="screen-info">
+    <div style="height:8px"></div>
+    <div class="info-banner"><h2>🔬 ¿Por qué esta info es confiable?</h2><p>No nos inventamos nada. Dyntu está basado en investigaciones de personas muy brillantes que estudiaron durante años cómo las personas manejan (o no manejan) su dinero.</p></div>
+    <div class="expert-contact-cta" onclick="showToast('📬 Contáctanos a expertos@dyntu.mx — próximamente en la app', true)"><div class="expert-contact-cta-icon">💬</div><div class="expert-contact-cta-text"><div class="expert-contact-cta-title">¿Tienes una duda financiera real?</div><div class="expert-contact-cta-desc">Contacta a nuestro equipo de asesores — respondemos en 24 hrs</div></div><div>→</div></div>
+    <div class="expert-card"><div class="expert-avatar" style="background:#ffe4f0">👩‍🏫</div><div><div class="expert-name">Annamaria Lusardi</div><div class="expert-role">Profesora en GWU · Experta en alfabetización financiera</div><div class="expert-quote">Demostró que las personas con mayor educación financiera ahorran más, se endeudan menos y viven mejor. Su solución: aprender desde jóvenes, con ejemplos del mundo real.</div></div></div>
+    <div class="expert-card"><div class="expert-avatar" style="background:#e4f0ff">👨‍🔬</div><div><div class="expert-name">Richard Thaler</div><div class="expert-role">Premio Nobel de Economía 2017 · Economía del comportamiento</div><div class="expert-quote">Descubrió que los seres humanos tomamos decisiones financieras de forma irracional. Con "nudges" podemos crear mejores hábitos de ahorro sin esfuerzo.</div></div></div>
+    <div class="oecd-card"><h3>🌍 OCDE</h3><p>La Organización para la Cooperación y el Desarrollo Económico estudia cómo la educación financiera desde la universidad reduce el riesgo de deudas y aumenta la calidad de vida a largo plazo.</p></div>
+    <div class="disclaimer">⚠️ Dyntu es una herramienta educativa, no un asesor financiero certificado. Úsala para aprender conceptos básicos y consulta siempre a un profesional para decisiones importantes de dinero.</div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div class="screen" id="screen-profile">
+    <div style="height:8px"></div>
+    <div class="profile-hero">
+      <div class="profile-avatar-wrap" onclick="openAvatarPicker()"><div class="profile-avatar" id="profile-avatar-display">🧑</div><div class="profile-avatar-edit">✏️</div></div>
+      <div class="profile-name-display" id="profile-hero-name">Tu nombre</div>
+      <div class="profile-email-display" id="profile-hero-email">tucorreo@ejemplo.com</div>
+      <div class="profile-rank-badge"><span class="profile-rank-emoji" id="profile-rank-emoji">🌱</span><div><div class="profile-rank-label" id="profile-rank-label">Aprendiz Financiero</div><div class="profile-rank-sub" id="profile-rank-sub">Nivel 1 · Sigue aprendiendo</div></div></div>
+      <div class="profile-xp-bar-wrap"><div class="profile-xp-bar-labels"><span id="profile-xp-current">120 XP</span><span id="profile-xp-next">Siguiente nivel: 200 XP</span></div><div class="profile-xp-bar"><div class="profile-xp-bar-fill" id="profile-xp-fill" style="width:60%"></div></div></div>
+    </div>
+    <div class="profile-mini-stats">
+      <div class="profile-mini-stat"><div class="profile-mini-stat-icon">⚡</div><div class="profile-mini-stat-val" id="pstat-xp">120</div><div class="profile-mini-stat-lbl">XP Total</div></div>
+      <div class="profile-mini-stat"><div class="profile-mini-stat-icon">🔥</div><div class="profile-mini-stat-val" id="pstat-streak">3</div><div class="profile-mini-stat-lbl">Racha</div></div>
+      <div class="profile-mini-stat"><div class="profile-mini-stat-icon">✅</div><div class="profile-mini-stat-val" id="pstat-done">2</div><div class="profile-mini-stat-lbl">Lecciones</div></div>
+    </div>
+    <div class="profile-edit-card">
+      <div class="profile-edit-title">✏️ Editar mi información</div>
+      <div class="profile-input-wrap"><label class="profile-input-label">Nombre</label><span class="profile-input-icon">👤</span><input type="text" class="profile-input" id="edit-name" placeholder="Tu nombre"></div>
+      <div class="profile-input-wrap"><label class="profile-input-label">Correo electrónico</label><span class="profile-input-icon">📧</span><input type="email" class="profile-input" id="edit-email" placeholder="tucorreo@ejemplo.com"></div>
+      <button class="btn-save-profile" onclick="saveProfileEdits()">Guardar cambios ✓</button>
+    </div>
+    <div class="profile-ranks-card">
+      <div class="profile-ranks-title">🏅 Rangos financieros</div>
+      <div class="rank-row"><div class="rank-row-emoji">🌱</div><div class="rank-row-info"><div class="rank-row-name">Aprendiz Financiero</div><div class="rank-row-req">0 – 199 XP</div></div><span class="rank-row-badge" id="rank-badge-0">—</span></div>
+      <div class="rank-row"><div class="rank-row-emoji">💡</div><div class="rank-row-info"><div class="rank-row-name">Ahorrista Consciente</div><div class="rank-row-req">200 – 399 XP</div></div><span class="rank-row-badge" id="rank-badge-1">—</span></div>
+      <div class="rank-row"><div class="rank-row-emoji">🐷</div><div class="rank-row-info"><div class="rank-row-name">Maestro del Ahorro</div><div class="rank-row-req">400 – 699 XP</div></div><span class="rank-row-badge" id="rank-badge-2">—</span></div>
+      <div class="rank-row"><div class="rank-row-emoji">🏆</div><div class="rank-row-info"><div class="rank-row-name">Crack Financiero</div><div class="rank-row-req">700+ XP</div></div><span class="rank-row-badge" id="rank-badge-3">—</span></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-card">
+    <span class="confirm-emoji">👋</span>
+    <div class="confirm-title">¿Seguro que quieres salir?</div>
+    <div class="confirm-msg">Tu progreso está guardado. Puedes regresar cuando quieras.</div>
+    <div class="confirm-actions"><button class="btn-confirm-cancel" onclick="closeConfirmLogout()">Quedarme</button><button class="btn-confirm-exit" onclick="confirmLogout()">Salir</button></div>
+  </div>
+</div>
+
+<div class="onboarding-overlay" id="onboarding-overlay">
+  <div class="onboarding-card">
+    <div class="onboarding-steps" id="onboarding-dots"></div>
+    <span class="onboarding-emoji" id="onboarding-emoji">🎓</span>
+    <div class="onboarding-title" id="onboarding-title">Bienvenido a Dyntu</div>
+    <div class="onboarding-desc" id="onboarding-desc">Tu profe de finanzas personales. En 5 minutos al día aprenderás a manejar tu dinero como un pro.</div>
+    <div class="onboarding-actions"><button class="btn-skip" onclick="skipOnboarding()">Omitir</button><button class="btn-next-tour" id="onboarding-next-btn" onclick="nextOnboardingStep()">Siguiente →</button></div>
+  </div>
+</div>
+
+<div class="congrats-overlay" id="congrats-overlay">
+  <div class="congrats-card">
+    <span class="congrats-emoji" id="congrats-emoji">🎉</span>
+    <div class="congrats-title" id="congrats-title">¡Lección completada!</div>
+    <div class="congrats-msg" id="congrats-msg">Tu yo del futuro te lo agradece 💸</div>
+    <div class="xp-earned">⚡ +20 XP ganados</div>
+    <div class="reward-canje" onclick="showToast('🎁 Sistema de canje próximamente disponible', true)"><div class="reward-canje-icon">🎁</div><div class="reward-canje-text"><div class="reward-canje-title">¡Tienes puntos canjeables!</div><div class="reward-canje-desc">Úsalos por descuentos y recompensas</div></div><div class="reward-canje-arrow">→</div></div>
+    <button class="btn-continue" onclick="closeCongratsAndGoHome()">Continuar →</button>
+  </div>
+</div>
+
+<div class="avatar-picker-overlay" id="avatar-picker-overlay">
+  <div class="avatar-picker-card">
+    <div class="avatar-picker-title">Elige tu avatar 🎨</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <button class="btn-close-picker" onclick="closeAvatarPicker()">Cancelar</button>
+  </div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+<div class="auth-toast" id="auth-toast"></div>
+
+<div class="navbar" id="main-navbar" style="display:none">
+  <button class="nav-item active" id="nav-home" onclick="navigate('home')"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span><span class="nav-indicator"></span></button>
+  <button class="nav-item" id="nav-stats" onclick="navigate('stats')"><span class="nav-icon">📊</span><span class="nav-label">Mis logros</span><span class="nav-indicator"></span></button>
+  <button class="nav-item" id="nav-info" onclick="navigate('info')"><span class="nav-icon">🔬</span><span class="nav-label">Expertos</span><span class="nav-indicator"></span></button>
+  <button class="nav-item" id="nav-profile" onclick="navigate('profile')"><span class="nav-icon">👤</span><span class="nav-label">Perfil</span><span class="nav-indicator"></span></button>
+  <button class="nav-item nav-exit" onclick="handleLogout()"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span><span class="nav-indicator"></span></button>
+</div>
+
+<script>
+const USERS_KEY = 'dyntu_users';
+const SESSION_KEY = 'dyntu_session';
+function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch { return {}; } }
+function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function getSession() { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; } }
+function saveSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+function showAuthScreen(id) { document.querySelectorAll('.auth-screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showToast(msg, success = false) { const t = document.getElementById('auth-toast'); t.textContent = msg; t.className = 'auth-toast' + (success ? ' success-toast' : '') + ' show'; setTimeout(() => t.classList.remove('show'), 3000); }
+function togglePass(inputId, btn) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; btn.textContent = input.type === 'password' ? '👁️' : '🙈'; }
+function checkPasswordStrength() {
+  const pass = document.getElementById('reg-password').value;
+  const strength = document.getElementById('pass-strength'); const fill = document.getElementById('strength-fill'); const label = document.getElementById('strength-label');
+  if (!pass) { strength.classList.remove('show'); return; } strength.classList.add('show');
+  let score = 0; if (pass.length >= 6) score++; if (pass.length >= 10) score++; if (/[A-Z]/.test(pass)) score++; if (/[0-9]/.test(pass)) score++; if (/[^A-Za-z0-9]/.test(pass)) score++;
+  const configs = [{w:'20%',color:'#FF4B4B',text:'😬 Muy débil',textColor:'#FF4B4B'},{w:'40%',color:'#C8102E',text:'🤔 Débil',textColor:'#C8102E'},{w:'60%',color:'#8B1A2F',text:'😐 Regular',textColor:'#8B1A2F'},{w:'80%',color:'#58595B',text:'😊 Buena',textColor:'#58595B'},{w:'100%',color:'#6b1224',text:'💪 Muy segura',textColor:'#6b1224'}];
+  const c = configs[Math.min(score,4)]; fill.style.width = c.w; fill.style.background = c.color; label.textContent = c.text; label.style.color = c.textColor;
+}
+function validateRegField(id) {
+  const input = document.getElementById(id); const error = document.getElementById(id+'-error'); const v = input.value.trim(); let valid = true;
+  if (id === 'reg-name') valid = v.length >= 2; if (id === 'reg-email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  input.classList.toggle('error', !valid && v.length > 0); input.classList.toggle('success', valid);
+  if (error) error.classList.toggle('show', !valid && v.length > 0); return valid;
+}
+function handleRegister() {
+  const name = document.getElementById('reg-name').value.trim(); const email = document.getElementById('reg-email').value.trim().toLowerCase(); const password = document.getElementById('reg-password').value;
+  let ok = true;
+  if (name.length < 2) { document.getElementById('reg-name').classList.add('error'); document.getElementById('reg-name-error').classList.add('show'); ok = false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('reg-email').classList.add('error'); document.getElementById('reg-email-error').textContent = 'Ingresa un correo válido'; document.getElementById('reg-email-error').classList.add('show'); ok = false; }
+  if (password.length < 6) { document.getElementById('reg-password').classList.add('error'); document.getElementById('reg-password-error').classList.add('show'); ok = false; }
+  if (!ok) return;
+  const users = getUsers();
+  if (users[email]) { document.getElementById('reg-email').classList.add('error'); document.getElementById('reg-email-error').textContent = 'Este correo ya está registrado'; document.getElementById('reg-email-error').classList.add('show'); return; }
+  users[email] = { name, email, password, xp: 0, streak: 0, completed: [], avatar: '🧑', isNew: true }; saveUsers(users); saveSession({ email, name });
+  showToast('🎉 ¡Cuenta creada! Bienvenido, ' + name, true); setTimeout(() => launchApp(name, email, [], 0, 0, '🧑', true), 600);
+}
+function handleLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase(); const password = document.getElementById('login-password').value;
+  const users = getUsers(); const user = users[email];
+  if (!user || user.password !== password) { ['login-email','login-password'].forEach(id => { document.getElementById(id).classList.add('error'); document.getElementById(id+'-error').classList.add('show'); }); return; }
+  saveSession({ email, name: user.name }); showToast('¡Bienvenido de vuelta, ' + user.name + '! 🎉', true);
+  setTimeout(() => launchApp(user.name, email, user.completed || [], user.xp || 120, user.streak || 3, user.avatar || '🧑', false), 600);
+}
+function handleGoogleMock() {
+  const name = 'Usuario Google'; const email = 'google_' + Date.now() + '@gmail.com'; const users = getUsers();
+  users[email] = { name, email, password: '', xp: 0, streak: 0, completed: [], avatar: '🧑', isNew: true }; saveUsers(users); saveSession({ email, name });
+  showToast('🌐 Conectado con Google', true); setTimeout(() => launchApp(name, email, [], 0, 0, '🧑', true), 600);
+}
+function handleLogout() { document.getElementById('confirm-overlay').classList.add('show'); }
+function closeConfirmLogout() { document.getElementById('confirm-overlay').classList.remove('show'); }
+function confirmLogout() {
+  closeConfirmLogout(); const session = getSession();
+  if (session) { const users = getUsers(); if (users[session.email]) { users[session.email].xp = state.xp; users[session.email].streak = state.streak; users[session.email].completed = state.completed; users[session.email].avatar = state.avatar; saveUsers(users); } }
+  clearSession(); document.getElementById('app-shell').style.display = 'none'; document.getElementById('main-navbar').style.display = 'none'; document.getElementById('auth-shell').style.display = 'flex'; showAuthScreen('auth-landing'); showToast('👋 Sesión cerrada. ¡Hasta pronto!', true);
+}
+function launchApp(name, email, completed, xp, streak, avatar, isNew) {
+  document.getElementById('auth-shell').style.display = 'none'; document.getElementById('app-shell').style.display = 'block'; document.getElementById('main-navbar').style.display = 'flex';
+  state.xp = xp || 120; state.streak = streak || 3; state.completed = completed.length ? completed : [0, 1]; state.name = name; state.email = email; state.avatar = avatar || '🧑';
+  document.getElementById('welcome-name').textContent = '¡Hola, ' + name + '! 👋'; updateGlobalXP(); updateHomeProgress(); navigate('home');
+  if (isNew) setTimeout(() => startOnboarding(), 800);
+}
+window.addEventListener('load', () => { const session = getSession(); if (session) { const users = getUsers(); const user = users[session.email]; if (user) launchApp(user.name, session.email, user.completed || [], user.xp || 120, user.streak || 3, user.avatar || '🧑', false); else clearSession(); } });
+
+const onboardingSteps = [
+  { emoji: '🎓', title: '¡Bienvenido a Dyntu!', desc: 'Tu profe de finanzas personales. En 5 minutos al día aprenderás a manejar tu dinero como un pro.' },
+  { emoji: '📚', title: 'Completa lecciones', desc: 'Avanza por la ruta de aprendizaje. Cada lección tiene un ejemplo real y una mini pregunta para poner a prueba lo aprendido.' },
+  { emoji: '🏆', title: 'Gana XP y logros', desc: 'Cada lección completada suma puntos de experiencia. ¡Acumula logros y canjéalos por recompensas!' },
+  { emoji: '👤', title: 'Tu perfil financiero', desc: 'Sube de rango conforme aprendes. ¡De Aprendiz a Crack Financiero! Personaliza tu avatar y edita tus datos cuando quieras.' },
+];
+let onboardingStep = 0;
+function startOnboarding() { onboardingStep = 0; renderOnboardingStep(); document.getElementById('onboarding-overlay').classList.add('show'); }
+function renderOnboardingStep() {
+  const step = onboardingSteps[onboardingStep];
+  document.getElementById('onboarding-emoji').textContent = step.emoji; document.getElementById('onboarding-title').textContent = step.title; document.getElementById('onboarding-desc').textContent = step.desc;
+  const isLast = onboardingStep === onboardingSteps.length - 1; document.getElementById('onboarding-next-btn').textContent = isLast ? '¡Empezar! 🚀' : 'Siguiente →';
+  const dots = document.getElementById('onboarding-dots'); dots.innerHTML = '';
+  onboardingSteps.forEach((_, i) => { const d = document.createElement('div'); d.className = 'onboarding-dot' + (i === onboardingStep ? ' active' : ''); dots.appendChild(d); });
+}
+function nextOnboardingStep() { if (onboardingStep < onboardingSteps.length - 1) { onboardingStep++; renderOnboardingStep(); } else skipOnboarding(); }
+function skipOnboarding() { document.getElementById('onboarding-overlay').classList.remove('show'); }
+
+let state = { xp: 120, streak: 3, completed: [0, 1], currentLesson: 0, name: '', email: '', avatar: '🧑' };
+
+const RANKS = [
+  { min: 0,   max: 199,  emoji: '🌱', label: 'Aprendiz Financiero',  sub: 'Nivel 1 · Sigue aprendiendo', nextXP: 200 },
+  { min: 200, max: 399,  emoji: '💡', label: 'Ahorrista Consciente', sub: 'Nivel 2 · ¡Vas muy bien!',    nextXP: 400 },
+  { min: 400, max: 699,  emoji: '🐷', label: 'Maestro del Ahorro',   sub: 'Nivel 3 · ¡Imparable!',       nextXP: 700 },
+  { min: 700, max: 99999,emoji: '🏆', label: 'Crack Financiero',     sub: 'Nivel 4 · ¡Eres un crack! 🔥',nextXP: null },
+];
+function getRank(xp) { return RANKS.find(r => xp >= r.min && xp <= r.max) || RANKS[0]; }
+
+function renderProfile() {
+  const rank = getRank(state.xp);
+  document.getElementById('profile-avatar-display').textContent = state.avatar;
+  document.getElementById('profile-hero-name').textContent = state.name || 'Tu nombre';
+  document.getElementById('profile-hero-email').textContent = state.email || 'tucorreo@ejemplo.com';
+  document.getElementById('profile-rank-emoji').textContent = rank.emoji;
+  document.getElementById('profile-rank-label').textContent = rank.label;
+  document.getElementById('profile-rank-sub').textContent = rank.sub;
+  document.getElementById('profile-xp-current').textContent = state.xp + ' XP';
+  if (rank.nextXP) { const pct = Math.min(100, Math.round(((state.xp - rank.min) / (rank.nextXP - rank.min)) * 100)); document.getElementById('profile-xp-fill').style.width = pct + '%'; document.getElementById('profile-xp-next').textContent = 'Siguiente nivel: ' + rank.nextXP + ' XP'; }
+  else { document.getElementById('profile-xp-fill').style.width = '100%'; document.getElementById('profile-xp-next').textContent = '¡Nivel máximo! 🏆'; }
+  document.getElementById('pstat-xp').textContent = state.xp; document.getElementById('pstat-streak').textContent = state.streak; document.getElementById('pstat-done').textContent = state.completed.length;
+  document.getElementById('edit-name').value = state.name || ''; document.getElementById('edit-email').value = state.email || '';
+  RANKS.forEach((r, i) => { const badge = document.getElementById('rank-badge-' + i); if (!badge) return; const currentRankIdx = RANKS.indexOf(getRank(state.xp)); if (i < currentRankIdx) { badge.textContent = '✓ Superado'; badge.className = 'rank-row-badge rank-done-tag'; } else if (i === currentRankIdx) { badge.textContent = '● Actual'; badge.className = 'rank-row-badge rank-current'; } else { badge.textContent = '🔒'; badge.className = 'rank-row-badge rank-locked-tag'; } });
+}
+function saveProfileEdits() {
+  const newName = document.getElementById('edit-name').value.trim(); const newEmail = document.getElementById('edit-email').value.trim().toLowerCase();
+  if (newName.length < 2) { showToast('⚠️ El nombre debe tener al menos 2 caracteres'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) { showToast('⚠️ Ingresa un correo válido'); return; }
+  state.name = newName; state.email = newEmail;
+  const session = getSession(); if (session) { const users = getUsers(); if (users[session.email]) { users[session.email].name = newName; users[session.email].email = newEmail; if (session.email !== newEmail) { users[newEmail] = { ...users[session.email] }; delete users[session.email]; saveSession({ email: newEmail, name: newName }); } saveUsers(users); } }
+  document.getElementById('welcome-name').textContent = '¡Hola, ' + newName + '! 👋'; renderProfile(); showToast('✅ ¡Perfil actualizado!', true);
+}
+const AVATARS = ['🧑','👦','👧','👨','👩','🧒','🧑‍💻','👨‍🎓','👩‍🎓','🧑‍🎓','🦸','🧙','🐺','🦊','🐸','🐧','🦁','🐯','🐻','🐼'];
+function openAvatarPicker() { const grid = document.getElementById('avatar-grid'); grid.innerHTML = ''; AVATARS.forEach(emoji => { const btn = document.createElement('button'); btn.className = 'avatar-option' + (emoji === state.avatar ? ' selected' : ''); btn.textContent = emoji; btn.onclick = () => selectAvatar(emoji); grid.appendChild(btn); }); document.getElementById('avatar-picker-overlay').classList.add('show'); }
+function selectAvatar(emoji) { state.avatar = emoji; document.getElementById('profile-avatar-display').textContent = emoji; const session = getSession(); if (session) { const users = getUsers(); if (users[session.email]) { users[session.email].avatar = emoji; saveUsers(users); } } closeAvatarPicker(); showToast('🎨 ¡Avatar actualizado!', true); }
+function closeAvatarPicker() { document.getElementById('avatar-picker-overlay').classList.remove('show'); }
+function navigate(screen) {
+  const validScreens = ['home','stats','info','profile']; if (!validScreens.includes(screen)) { showToast('Próximamente', true); return; }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active'); const navEl = document.getElementById('nav-' + screen); if (navEl) navEl.classList.add('active');
+  if (screen === 'profile') renderProfile();
+}
+function goHome() { navigate('home'); }
+
+// ── VIDEOS POR LECCIÓN (IDs de YouTube) ──
+const LESSON_VIDEOS = [
+  { id: '0HZWpJIBISM', label: '¿Qué es un presupuesto?' },
+  { id: 'yJdI4a7lpBQ', label: 'Necesidades vs. Deseos' },
+  { id: '1cQtEAw2nEs', label: 'Gastos hormiga explicados' },
+  { id: 'AuGFrRq79WU', label: 'El poder del ahorro constante' },
+  { id: 'nfS6x6lPahk', label: 'Fondo de emergencia: para qué' },
+  { id: 'xjIzBgJGRgU', label: 'Cómo evitar compras impulsivas' },
+  { id: 'hprOQDDUUms', label: 'La regla 50/30/20 explicada' },
+];
+
+const lessons = [
+  { emoji:'💰', title:'¿A dónde se va mi dinero?', topic:'El presupuesto', explain:'Un presupuesto es simplemente saber cuánto dinero entra y cuánto sale. Nada más. Es como un mapa de tu dinero: sin él, te pierdes.', example:'🎓 Carlos recibe $3,000 de mesada. Sin presupuesto, se queda en ceros el día 20 sin saber por qué. Con presupuesto, sabe exactamente qué puede gastar cada semana.', tip:'✍️ Esta semana anota todo lo que gastas en tu cel. Solo eso. No cambies nada aún.', question:'¿Qué es un presupuesto?', options:['Un préstamo del banco','Un plan de cuánto dinero entra y sale','Una tarjeta de crédito especial','Un tipo de inversión'], correct:1, feedback_ok:'¡Exacto! Un presupuesto es tu mapa del dinero. Simple y poderoso. 🗺️', feedback_fail:'No es esa. Un presupuesto es solo saber cuánto tienes y cuánto gastas. ¡Lo puedes hacer en papel!', expert:'📖 Basado en estudios de Annamaria Lusardi sobre hábitos financieros en jóvenes universitarios', congrats_msg:'¡Ya sabes qué es un presupuesto! Pequeños pasos, grandes ahorros 💪', motivational:'⚡ Tu yo del futuro te lo agradece 💸' },
+  { emoji:'🛍️', title:'¿Lo necesito o lo quiero?', topic:'Necesidad vs. deseo', explain:'Una necesidad es algo sin lo cual no puedes vivir: comida, transporte, renta. Un deseo es algo que quieres pero podrías vivir sin él. Confundirlos es el error #1 del dinero.', example:'🎓 Ana "necesita" los audífonos nuevos de $800... pero lleva unos que funcionan perfecto. Eso es un deseo, no una necesidad.', tip:'💡 Antes de comprar algo, espera 24 horas. Si al día siguiente aún lo quieres y puedes pagarlo: adelante.', question:'¿Cuál de estos es una NECESIDAD?', options:['Ropa de diseñador','Café de $80 diario','Transporte para ir a clases','Suscripción de streaming'], correct:2, feedback_ok:'¡Correcto! El transporte es básico para ir a la escuela. Las demás son deseos. 🚌', feedback_fail:'Piénsalo así: ¿puedes ir a clases sin eso? El transporte sí es indispensable.', expert:'📖 Basado en el marco de economía conductual de Richard Thaler (Premio Nobel 2017)', congrats_msg:'¡Ya distingues necesidades de deseos! Nivel financiero subiendo 🚀', motivational:'🔥 ¡Nivel financiero subiendo!' },
+  { emoji:'🐜', title:'El ladrón invisible', topic:'El gasto hormiga', explain:'Los gastos hormiga son pequeñas compras de todos los días que parecen insignificantes pero juntas se llevan un chingo de tu dinero. Café, snacks, apps que no usas...', example:'🎓 Miguel gasta $25 diarios en café y $15 en snacks = $40/día = $1,200/mes. ¡Eso es una mensualidad completa que desaparece en cositas!', tip:'🐜 Abre tu historial de pagos ahora mismo. Busca 3 gastos repetitivos que no te generan valor real.', question:'¿Cuál es un gasto hormiga típico?', options:['Pagar la renta','Comprar 3 cafés al día','Pagar la universidad','Comprar comida del mes'], correct:1, feedback_ok:'¡Sí! El café diario parece poco pero suma muchísimo al mes. ¡El clásico gasto hormiga! ☕', feedback_fail:'Un gasto hormiga es algo pequeño y repetitivo. La renta y la colegiatura son gastos grandes, no hormiga.', expert:'📖 Basado en el concepto de "Mental Accounting" de Richard Thaler, OCDE 2023', congrats_msg:'¡Identificaste al ladrón invisible! Tu cartera está más segura 🛡️', motivational:'💸 Pequeños pasos, grandes ahorros' },
+  { emoji:'🐷', title:'El súperpoder del ahorro', topic:'Ahorro pequeño y constante', explain:'No necesitas ahorrar mucho de golpe. Ahorrar poco pero todos los días es más poderoso que esperar "cuando tenga más". El truco es hacerlo automático y constante.', example:'🎓 Sofía ahorra $20 cada semana. Parece poco. Pero en un año son $1,040 sin esfuerzo. En 5 años, más de $5,000.', tip:'🐷 El día que cobres, aparta aunque sea $50 antes de gastar cualquier otra cosa. Primero págate a ti.', question:'¿Cuál es la mejor estrategia de ahorro?', options:['Ahorrar todo en diciembre','Esperar ganar más para ahorrar','Ahorrar poco pero de forma constante','Solo ahorrar cuando sobre dinero'], correct:2, feedback_ok:'¡Perfecto! La constancia gana siempre. Poco a poco se llena el vaso. 🐷', feedback_fail:'Esperar el momento perfecto para ahorrar es el error más común. ¡Lo constante vale más que lo grande!', expert:'📖 Basado en estudios de Annamaria Lusardi y el Programa de Educación Financiera de la OCDE', congrats_msg:'¡Descubriste el súperpoder del ahorro! Tu yo del futuro te lo agradece 💸', motivational:'⚡ Tu yo del futuro te lo agradece 💸' },
+  { emoji:'🛡️', title:'Tu red de seguridad', topic:'Fondo de emergencia básico', explain:'Un fondo de emergencia es dinero guardado para imprevistos: que se rompa tu laptop, una multa, una enfermedad. Sin él, cualquier sorpresa te deja en deudas.', example:'🎓 Diego no tenía fondo de emergencia. Se le rompió el cel. Tuvo que pedir prestado y tardó 3 meses en pagar. Con $500 ahorrados, lo habría resuelto en un día.', tip:'🛡️ Meta básica universitaria: tener $500-$1,000 en una cuenta separada que solo tocas en VERDADERAS emergencias.', question:'¿Qué NO es una emergencia financiera real?', options:['Que se rompa tu laptop','Ver una oferta de ropa','Gasto médico urgente','Que se avería tu transporte'], correct:1, feedback_ok:'¡Exacto! Una oferta es una tentación, no una emergencia. Tu fondo de emergencia es sagrado. 🛡️', feedback_fail:'Una oferta no es emergencia, ¡aunque se sienta urgente! El fondo es para cosas que afectan tu vida real.', expert:'📖 Basado en recomendaciones de la OCDE sobre resiliencia financiera en adultos jóvenes', congrats_msg:'¡Ya tienes mentalidad de red de seguridad! ¡Nivel financiero subiendo! 🚀', motivational:'🔥 ¡Nivel financiero subiendo!' },
+  { emoji:'🛒', title:'"Solo por hoy" te cuesta caro', topic:'Gastos impulsivos', explain:'Los gastos impulsivos pasan cuando compras algo sin planearlo, solo porque lo viste y lo quisiste en ese momento. Las tiendas y apps están diseñadas para provocarlos.', example:'🎓 Laura entró a SHEIN "a ver qué había" y gastó $600. Ni lo necesitaba. Eso es un gasto impulsivo clásico. El ambiente la manipuló.', tip:'📱 Borra las apps de tiendas de tu cel o desactiva las notificaciones. Fuera de vista, fuera de gasto.', question:'¿Cuál es la mejor forma de evitar gastos impulsivos?', options:['Llevar solo efectivo o presupuesto','Comprar rápido antes de pensarlo','Siempre tener la tarjeta a mano','Seguir a influencers de moda'], correct:0, feedback_ok:'¡Exacto! Llevar un límite claro o solo efectivo reduce el 80% de los gastos impulsivos. 💪', feedback_fail:'Pensar antes de comprar siempre ayuda. La mejor barrera es tener un límite definido de antemano.', expert:'📖 Basado en la teoría de "nudges" de Richard Thaler y conceptos de autocontrol financiero', congrats_msg:'¡Ya conoces la trampa de los gastos impulsivos! Pequeños pasos, grandes ahorros 💸', motivational:'💸 Pequeños pasos, grandes ahorros' },
+  { emoji:'⚖️', title:'La regla mágica 50/30/20', topic:'Regla 50/30/20', explain:'Divide tu dinero en 3 partes: 50% para lo básico (renta, comida, transporte), 30% para lo que quieres (salidas, ropa, Netflix), 20% para ahorro. Simple. Poderoso.', example:'🎓 Gabriela recibe $4,000: $2,000 para gastos básicos, $1,200 para gustos, $800 para ahorrar. En un año tiene $9,600 ahorrados sin sacrificar su vida social.', tip:'📱 Haz la división de tu mesada ahorita mismo con una calculadora. ¿En qué porcentaje estás fallando?', question:'Según la regla 50/30/20, ¿cuánto va para ahorro?', options:['10% de tus ingresos','50% de tus ingresos','20% de tus ingresos','30% de tus ingresos'], correct:2, feedback_ok:'¡Perfecto! 20% para ahorrar, siempre. No importa si parece poco. ¡Es la clave! 🏆', feedback_fail:'La regla es 50 básico / 30 deseos / 20 ahorro. El 20% es tu futuro. ¡No lo olvides!', expert:'📖 Adaptación de la regla 50/30/20 de Elizabeth Warren, validada por estudios de Lusardi y OCDE', congrats_msg:'¡Dominaste la regla mágica del dinero! ¡Eres un crack financiero! 🏆💸', motivational:'⚡ ¡Eres un crack financiero! Tu yo del futuro te lo agradece 💸' }
+];
+
+function openLesson(idx) {
+  state.currentLesson = idx;
+  const l = lessons[idx];
+  const vid = LESSON_VIDEOS[idx];
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-lesson').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('lesson-prog').style.width = '20%';
+  document.getElementById('lesson-xp').textContent = '0';
+
+  const content = document.getElementById('lesson-content');
+  content.innerHTML = `
+    <div class="motivational">${l.motivational}</div>
+    <div class="lesson-card">
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-card-title">${l.title}</div>
+      <div class="content-block block-explain">
+        <div class="block-label">📘 ¿De qué va esto?</div>
+        ${l.explain}
+      </div>
+      <div class="video-embed-wrap">
+        <div class="video-embed-label">
+          ▶ VIDEO &nbsp;·&nbsp; <span>${vid.label}</span>
+        </div>
+        <div class="video-iframe-container">
+          <iframe
+            src="https://www.youtube.com/embed/${vid.id}?rel=0&modestbranding=1&color=red"
+            title="${vid.label}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+      <div class="content-block block-example">
+        <div class="block-label">🎓 Ejemplo real</div>
+        ${l.example}
+      </div>
+      <div class="content-block block-tip">
+        <div class="block-label">💡 Haz esto hoy</div>
+        ${l.tip}
+      </div>
+    </div>
+    <div class="lesson-card quiz-section">
+      <div class="quiz-question">🤔 ${l.question}</div>
+      <div class="quiz-options" id="quiz-opts">
+        ${l.options.map((opt, i) => `
+          <button class="quiz-option" onclick="selectOption(${i})" id="opt-${i}">
+            <div class="quiz-option-letter">${String.fromCharCode(65+i)}</div>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback">
+        <span class="feedback-icon" id="feedback-icon"></span>
+        <span id="feedback-text"></span>
+      </div>
+      <div class="expert-ref">📚 ${l.expert}</div>
+    </div>
+    <button class="btn-complete" id="complete-btn" onclick="completeLesson()" disabled>
+      Completar lección ✓
+    </button>
+    <div style="height:8px"></div>
+  `;
+  setTimeout(() => { document.getElementById('lesson-prog').style.width = '40%'; }, 300);
+}
+
+let answered = false;
+function selectOption(idx) {
+  if (answered) return;
+  const l = lessons[state.currentLesson];
+  document.querySelectorAll('.quiz-option').forEach((el, i) => { el.classList.remove('selected','correct','wrong','disabled'); el.classList.add('disabled'); if (i === l.correct) el.classList.add('correct'); else if (i === idx && idx !== l.correct) el.classList.add('wrong'); });
+  answered = true;
+  const feedback = document.getElementById('quiz-feedback'); const icon = document.getElementById('feedback-icon'); const text = document.getElementById('feedback-text');
+  if (idx === l.correct) { feedback.className = 'quiz-feedback show success'; icon.textContent = '✅'; text.textContent = l.feedback_ok; document.getElementById('lesson-xp').textContent = '20'; document.getElementById('lesson-prog').style.width = '100%'; }
+  else { feedback.className = 'quiz-feedback show error'; icon.textContent = '😬'; text.textContent = l.feedback_fail; document.getElementById('lesson-xp').textContent = '10'; document.getElementById('lesson-prog').style.width = '80%'; }
+  document.getElementById('complete-btn').disabled = false; answered = false;
+}
+function completeLesson() {
+  const l = lessons[state.currentLesson];
+  if (!state.completed.includes(state.currentLesson)) { state.completed.push(state.currentLesson); state.xp += 20; const session = getSession(); if (session) { const users = getUsers(); if (users[session.email]) { users[session.email].xp = state.xp; users[session.email].completed = state.completed; saveUsers(users); } } }
+  updateGlobalXP(); showCongrats(l.congrats_msg); spawnConfetti();
+}
+function showCongrats(msg) { document.getElementById('congrats-title').textContent = '¡Lección completada!'; document.getElementById('congrats-msg').textContent = msg; document.getElementById('congrats-emoji').textContent = ['🎉','🏆','💸','🚀','⭐'][Math.floor(Math.random()*5)]; document.getElementById('congrats-overlay').classList.add('show'); }
+function closeCongratsAndGoHome() { document.getElementById('congrats-overlay').classList.remove('show'); document.getElementById('confetti').classList.remove('show'); document.getElementById('confetti').innerHTML = ''; updateHomeProgress(); navigate('home'); }
+function updateGlobalXP() { document.getElementById('xp-total').textContent = state.xp; document.getElementById('stat-xp').textContent = state.xp; document.getElementById('stat-done').textContent = state.completed.length; const pct = Math.round((state.completed.length / lessons.length) * 100); document.getElementById('main-progress').style.width = pct + '%'; document.getElementById('prog-text').textContent = state.completed.length + ' / ' + lessons.length + ' lecciones'; if (document.getElementById('stat-pct')) document.getElementById('stat-pct').textContent = pct + '%'; }
+function updateHomeProgress() { const nodes = document.querySelectorAll('.lesson-node'); const emojis = ['💰','🛍️','🐜','🐷','🛡️','🛒','⚖️']; nodes.forEach((node, i) => { const icon = node.querySelector('.lesson-icon'); const status = node.querySelector('.lesson-status'); if (state.completed.includes(i)) { icon.className = 'lesson-icon done'; icon.textContent = emojis[i]; status.className = 'lesson-status status-done'; status.textContent = '✓ Listo'; } else if (i === state.completed.length) { icon.className = 'lesson-icon active'; icon.textContent = emojis[i]; status.className = 'lesson-status status-active'; status.textContent = '▶ Siguiente'; } else { icon.className = 'lesson-icon locked'; icon.textContent = emojis[i]; status.className = 'lesson-status status-locked'; status.textContent = '🔒'; } }); }
+function toggleReminder(idx) { const el = document.getElementById('rem-' + idx); el.classList.toggle('active'); el.textContent = el.classList.contains('active') ? '✓' : ''; }
+function spawnConfetti() { const container = document.getElementById('confetti'); container.innerHTML = ''; container.classList.add('show'); const colors = ['#C8102E','#8B1A2F','#6b1224','#58595B','#f5d0d8','#ffffff']; for (let i = 0; i < 60; i++) { const piece = document.createElement('div'); piece.className = 'confetti-piece'; piece.style.cssText = `left:${Math.random()*100}%;top:${-Math.random()*20}px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'};animation-delay:${Math.random()*0.8}s;animation-duration:${1+Math.random()}s;`; container.appendChild(piece); } setTimeout(() => { container.classList.remove('show'); container.innerHTML = ''; }, 2500); }
+</script>
+</body>
+</html>
